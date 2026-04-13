@@ -21,6 +21,8 @@ services:
   workshop_notebook:
     env_file: .env
     restart: no
+    working_dir: /workshop
+    entrypoint: ["jupyter", "notebook", "--port=8000", "--no-browser"]
     image: nvcr.io/nvidia/vllm:25.09-py3
     ports:
       - "8000:8000"
@@ -38,6 +40,3 @@ services:
     - NVIDIA_VISIBLE_DEVICES=all
     - NVIDIA_DRIVER_CAPABILITIES=all
     - CUDA_VISIBLE_DEVICES=0
-    command: >
-      cd /workshop &&
-      jupyter notebook --port=8000 --no-browser
