@@ -1,0 +1,43 @@
+services:
+  download_models:
+    env_file: .env
+    restart: no
+    image: nvcr.io/nvidia/vllm:25.09-py3
+    volumes:
+      - ${MODELS_DIR}:/models
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              device_ids: ["0"]
+              capabilities: [gpu]
+    environment:
+    - HF_TOKEN=${HF_TOKEN:-no_token_required}
+    command: >
+      huggingface-cli download BAAI/bge-m3 --local-dir=/models/bge-m3 &&
+      huggingface-cli download cjvt/GaMS3-12B-Instruct --local-dir=/models//GaMS3-12B-Instruct
+
+  workshop_notebook:
+    env_file: .env
+    restart: no
+    image: nvcr.io/nvidia/vllm:25.09-py3
+    ports:
+      - "8000:8000"
+    volumes:
+      - ${MODELS_DIR}:/models
+      - ${CODE_DIR}:/workshop
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              device_ids: ["0"]
+              capabilities: [gpu]
+    environment:
+    - NVIDIA_VISIBLE_DEVICES=all
+    - NVIDIA_DRIVER_CAPABILITIES=all
+    - CUDA_VISIBLE_DEVICES=0
+    command: >
+      cd /workshop &&
+      jupyter notebook --port=8000 --no-browser
