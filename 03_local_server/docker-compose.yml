@@ -2,12 +2,13 @@ services:
   vllm:
     image: nvcr.io/nvidia/vllm:25.09-py3
     container_name: vllm_server
+    env_file: ../.env
     ports:
       - "8001:8001"
     entrypoint: ["vllm", "serve", "/models/GaMS3-12B-Instruct", "--config", "/config/server_config.yaml"]
     volumes:
       - type: bind
-        source: /home/dvres/models/hf_models
+        source: ${MODELS_DIR}
         target: /models
         read_only: true
       - type: bind
