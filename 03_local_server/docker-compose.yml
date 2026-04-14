@@ -1,0 +1,62 @@
+services:
+  vllm:
+    image: nvcr.io/nvidia/vllm:25.09-py3
+    container_name: vllm_server
+    ports:
+      - "8001:8001"
+    entrypoint: ["vllm", "serve", "/models/GaMS3-12B-Instruct", "--config", "/config/server_config.yaml"]
+    volumes:
+      - type: bind
+        source: /home/dvres/models/hf_models
+        target: /models
+        read_only: true
+      - type: bind
+        source: ./GaMS3_server/config
+        target: /config
+        read_only: true
+      - type: bind
+        source: ./GaMS3_server/logs
+        target: /logs
+        read_only: false
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+    environment:
+      - NVIDIA_VISIBLE_DEVICES=all
+      - NVIDIA_DRIVER_CAPABILITIES=all
+      - CUDA_VISIBLE_DEVICES=0
+      - VLLM_LOGGING_CONFIG_PATH=/config/logging_config.json
+
+  litellm:
+    image: ghcr.io/berriai/litellm:main-latest
+    container_name: litellm_proxy
+    ports:
+      - "4000:4000"
+    environment:
+      - LITELLM_MASTER_KEY=sk-litellm-master-key
+    volumes:
+      - ./litellm:/litellm-app
+    command: --config /litellm-app/litellm_config.yaml --port 4000
+    depends_on:
+      - vllm
+
+  open-webui:
+    image: ghcr.io/open-webui/open-webui:main
+    container_name: open_webui
+    ports:
+      - "3000:8080"
+    environment:
+      - OPENAI_API_BASE_URL=http://litellm:4000/v1
+      - OPENAI_API_KEY=sk-litellm-master-key
+      - WEBUI_AUTH=False
+    volumes:
+      - open-webui-data:/open-webui-app/backend/data
+    depends_on:
+      - litellm
+
+volumes:
+  open-webui-data:

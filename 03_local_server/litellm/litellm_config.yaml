@@ -1,0 +1,6 @@
+model_list:
+  - model_name: GaMS3-12B-Instruct
+    litellm_params:
+      model: openai//models/GaMS3-12B-Instruct
+      api_base: http://vllm:8001/v1
+      api_key: GaMS-server-key

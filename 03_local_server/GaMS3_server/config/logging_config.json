@@ -1,0 +1,29 @@
+{
+    "formatters": {
+        "vllm": {
+            "class": "logging.Formatter",
+            "datefmt": "%m-%d %H:%M:%S",
+            "format": "%(levelname)s %(asctime)s %(filename)s:%(lineno)d] %(message)s"
+        }
+    },
+    "handlers": {
+        "file_handler": {
+            "class": "logging.FileHandler",
+            "formatter": "vllm",
+            "level": "INFO",
+            "filename": "/logs/gams3_12b_requests.log",
+            "mode": "a"
+        }
+    },
+    "loggers": {
+        "vllm": {
+            "handlers": [
+                "file_handler"
+            ],
+            "level": "DEBUG",
+            "propagate": false
+        }
+    },
+    "version": 1,
+    "disable_existing_loggers": false
+}

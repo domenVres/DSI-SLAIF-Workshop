@@ -1,0 +1,4 @@
+port: 8001
+api-key: "GaMS-server-key"
+gpu-memory-utilization: 0.4
+override-generation-config: '{"temperature": 0.6, "top_p": 0.9}'
